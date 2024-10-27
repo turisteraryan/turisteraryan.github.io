@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-scale, initial-scale=1.0">
+  <title>Zero Coin Mining</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.0/dist/full.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      background-color: #121212;
+    }
+    .stats-box, .table-container, .mining-box {
+      border-radius: 10px;
+      background-color: #1f1f1f;
+      padding: 15px;
+      text-align: center;
+      color: #ffffff;
+    }
+    .stats-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+    .input-box {
+      width: 300px;
+      background-color: #1f1f1f;
+      color: #ffffff;
+    }
+    .coin-balance {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #4caf50;
+      transition: transform 0.3s ease-in-out;
+    }
+    .coin-balance.increase {
+      transform: scale(1.2);
+    }
+    
+    
+  </style>
+</head>
+<body class="flex flex-col min-h-screen justify-center items-center text-white">
+
+  <!-- Main Container -->
+  <div class="w-full max-w-4xl mx-auto p-6">
+    <!-- Landing Page (hidden after login) -->
+    <div id="landingPage" class="text-center py-4">
+      <h1 class="text-3xl font-bold">Zero Coin Mining</h1>
+      <p class="text-lg">Start earning ZER coins by entering your wallet address.</p>
+      <div class="flex justify-center mt-6">
+        <input type="text" placeholder="Enter ZER Wallet Address" class="input input-bordered input-box text-center" id="walletAddress">
+        <button class="btn btn-primary ml-4" onclick="startMining()">Start Mining</button>
+      </div>
+    </div>
+
+    <!-- Statistic Boxes -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+      <div class="stats-box">
+        <span class="material-icons text-yellow-400">today</span>
+        <div class="stats-title">Website Days</div>
+        <div class="stats-value" id="websiteDays">3</div>
+      </div>
+      <div class="stats-box">
+        <span class="material-icons text-green-400">people</span>
+        <div class="stats-title">Total Users</div>
+        <div class="stats-value" id="totalUsers">352</div>
+      </div>
+      <div class="stats-box">
+        <span class="material-icons text-blue-400">account_balance_wallet</span>
+        <div class="stats-title">Total ZER Withdrawn</div>
+        <div class="stats-value" id="totalWithdrawn">342.1211 ZER</div>
+      </div>
+      <div class="stats-box">
+        <span class="material-icons text-purple-400">savings</span>
+        <div class="stats-title">Total Deposited</div>
+        <div class="stats-value" id="totalDeposited">603.8440 ZER</div>
+      </div>
+    </div>
+
+    <!-- User Dashboard (hidden until login) -->
+    <div id="dashboard" class="hidden mt-10">
+      <h2 class="text-2xl font-semibold mb-4 text-center">User Dashboard</h2>
+
+      <!-- Mining Progress -->
+      <div class="mining-box mt-6">
+        <h3 class="text-lg">Mining Progress</h3>
+        <div class="flex justify-between items-center mt-4">
+          <span>Mining Speed:</span>
+          <span id="ghs" class="text-xl font-bold">0.002 GH/s</span>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+          <span>Current ZER Balance:</span>
+          <span id="zerBalance" class="coin-balance">0.0000000000 ZER</span>
+        </div>
+      </div>
+
+      <!-- Withdrawal Button -->
+      <div class="text-center mt-6">
+        <button id="withdrawButton" class="btn btn-success" onclick="processWithdrawal()" disabled>Withdraw</button>
+      </div>
+
+      <!-- Withdrawals Table -->
+      <div class="table-container mt-10">
+        <h3 class="text-lg font-semibold mb-4">Withdrawal History</h3>
+        <table class="table w-full">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Date</th>
+              <th>ZER Coin</th>
+              <th>Hash ID</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawalsTable">
+            <tr><td colspan="4">No Withdrawals</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Affordable Mining Plans Table -->
+    <div class="table-container mt-10">
+      <h3 class="text-lg font-semibold mb-4">Affordable Mining Plans</h3>
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th>Plan Name</th>
+            <th>Deposit Amount</th>
+            <th>GH/s Speed</th>
+            <th>Expiry</th>
+            <th>Total Profit</th>
+            <th>Buy Plan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Starter Plan -->
+          <tr>
+            <td>Starter Plan</td>
+            <td>$0 (Free)</td>
+            <td>0.05 GH/s</td>
+            <td>1 Year</td>
+            <td>$1</td>
+            <td><button class="btn btn-primary" onclick="buyPlan('Starter Plan')">Buy Plan</button></td>
+          </tr>
+          <!-- Basic Plan -->
+          <tr>
+            <td>Basic Miner</td>
+            <td>$5</td>
+            <td>0.5 GH/s</td>
+            <td>1 Year</td>
+            <td>$10</td>
+            <td><button class="btn btn-primary" onclick="buyPlan('Basic Miner')">Buy Plan</button></td>
+          </tr>
+          <!-- Standard Plan -->
+          <tr>
+            <td>Standard Miner</td>
+            <td>$25</td>
+            <td>2 GH/s</td>
+            <td>1 Year</td>
+            <td>$50</td>            
+            <td><button class="btn btn-primary" onclick="buyPlan('Standard Miner')">Buy Plan</button></td>
+          </tr>
+          <!-- Enhanced Plan -->
+          <tr>
+            <td>Enhanced Miner</td>
+            <td>$50</td>
+            <td>5 GH/s</td>
+            <td>1 Year</td>
+            <td>$100</td>
+            <td><button class="btn btn-primary" onclick="buyPlan('Enhanced Miner')">Buy Plan</button></td>
+          </tr>
+          <!-- Premium Plan -->
+          <tr>
+            <td>Premium Miner</td>
+            <td>$100</td>
+            <td>10 GH/s</td>
+            <td>1 Year</td>
+            <td>$200</td>
+            <td><button class="btn btn-primary" onclick="buyPlan('Premium Miner')">Buy Plan</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div
+
+      <div class="table-container mt-10">
+        <h3 class="text-lg font-semibold mb-4">Active Plans</h3>
+        <table class="table w-full">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Active Plan Name</th>
+              <th>Speed</th>
+              <th>Per Day ZER Balance</th>
+              <th>Expiry Date</th>
+            </tr>
+          </thead>
+          <tbody id="activePlansTable">
+            <tr>
+              <td>Active</td>
+              <td>Free Plan</td>
+              <td>0.002 GH/s</td>
+              <td>0.0000001728 ZER</td>
+              <td>Never</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let websiteDays = localStorage.getItem('websiteDays') || 1000;
+    let totalUsers = parseInt(localStorage.getItem('totalUsers')) || 0;
+    let totalWithdrawn = parseFloat(localStorage.getItem('totalWithdrawn')) || 0.0;
+    let totalDeposited = parseFloat(localStorage.getItem('totalDeposited')) || 0.0;
+    let miningRate = 0.0000000006; // ZER coins per second for free plan
+    let zerBalance = 0.0000000000;
+    let uniqueUsers = new Set(JSON.parse(localStorage.getItem('uniqueUsers')) || []);
+    let userBalances = JSON.parse(localStorage.getItem('userBalances')) || {};
+
+    // Update stats values on the landing page
+    function loadStats() {
+      document.getElementById('websiteDays').textContent = websiteDays;
+      document.getElementById('totalUsers').textContent = totalUsers;
+      document.getElementById('totalWithdrawn').textContent = totalWithdrawn.toFixed(4) + ' ZER';
+      document.getElementById('totalDeposited').textContent = totalDeposited.toFixed(4) + ' ZER';
+    }
+
+    // Mining logic to update ZER balance automatically with animation
+    function startMining() {
+      const walletAddress = document.getElementById('walletAddress').value.trim();
+      if (walletAddress) {
+        // Check if wallet address already exists
+        if (!uniqueUsers.has(walletAddress)) {
+          uniqueUsers.add(walletAddress);
+          totalUsers++;
+          localStorage.setItem('totalUsers', totalUsers);
+          localStorage.setItem('uniqueUsers', JSON.stringify([...uniqueUsers]));
+        }
+
+        // Load previous balance or initialize if not present
+        zerBalance = userBalances[walletAddress] || 0.0000000000;
+        document.getElementById('zerBalance').textContent = zerBalance.toFixed(10) + ' ZER';
+        document.getElementById('landingPage').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+
+        // Start mining process
+        setInterval(() => {
+          zerBalance += miningRate; // Simulate mining
+          userBalances[walletAddress] = zerBalance; // Store balance
+          localStorage.setItem('userBalances', JSON.stringify(userBalances));
+          document.getElementById('zerBalance').textContent = zerBalance.toFixed(10) + ' ZER';
+          document.getElementById('zerBalance').classList.add('increase');
+          setTimeout(() => {
+            document.getElementById('zerBalance').classList.remove('increase');
+          }, 500);
+        }, 1000);
+      }
+    }
+
+    // Handle withdrawal process
+    function processWithdrawal() {
+      if (zerBalance >= 100) {
+        const hashID = 'HASH-' + Math.random().toString(36).substring(2, 15); // Generate a dummy hash ID
+        totalWithdrawn += 100;
+        totalDeposited += 0; // Modify based on actual deposits
+        zerBalance -= 100;
+        userBalances[document.getElementById('walletAddress').value.trim()] = zerBalance; // Update balance
+        localStorage.setItem('userBalances', JSON.stringify(userBalances));
+        loadStats();
+
+        // Add a new row in the withdrawal history
+        const withdrawalRow = `<tr><td>Completed</td><td>${new Date().toLocaleString()}</td><td>100 ZER</td><td>${hashID}</td></tr>`;
+        document.getElementById('withdrawalsTable').insertAdjacentHTML('beforeend', withdrawalRow);
+      }
+    }
+    
+    // Load initial stats on page load
+    loadStats();
+    
+    function buyPlan(planName) {
+      const userEmail = prompt("Enter your email or username:");
+      if (userEmail) {
+        const url = `https://okgateway.com/?view=product&item=dRy7KnVt&data=${userEmail}`;
+        window.location.href = url;
+      } else {
+        alert("Email or username is required to proceed.");
+      }
+    }
+    
+    
+  </script>
+</body>
+</html>
